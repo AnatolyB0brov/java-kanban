@@ -19,7 +19,7 @@ public class Epic extends Task{
     }
 
     public Set<Subtask> getSubtasks() {
-        return subtasks;
+        return new HashSet<>(subtasks);
     }
 
     @Override
