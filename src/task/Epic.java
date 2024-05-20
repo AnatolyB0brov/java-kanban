@@ -10,16 +10,45 @@ public class Epic extends Task{
         super(name, description, Status.NEW);
     }
 
-    public void addSubtask(Subtask subtask){
+    public void addOrUpdateSubtask(Subtask subtask){
         subtasks.add(subtask);
+        updateStatus();
     }
 
     public void removeSubtask(Subtask subtask){
         subtasks.remove(subtask);
+        updateStatus();
     }
 
     public Set<Subtask> getSubtasks() {
         return new HashSet<>(subtasks);
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        System.out.println("Can't change status by this method");
+    }
+
+    private void updateStatus() {
+        if (subtasks.isEmpty()) {
+            status = Status.NEW;
+        } else {
+            boolean isAllNew = true;
+            for (Subtask subtask : subtasks) {
+                switch (subtask.getStatus()) {
+                    case IN_PROGRESS -> {
+                        status = Status.IN_PROGRESS;
+                        return;
+                    }
+                    case DONE -> isAllNew = false;
+                }
+            }
+            if (isAllNew) {
+                status = Status.NEW;
+            } else {
+                status = Status.DONE;
+            }
+        }
     }
 
     @Override
