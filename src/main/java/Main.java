@@ -1,12 +1,10 @@
-import task.Epic;
-import task.Status;
-import task.Subtask;
-import task.Task;
+import task.*;
+import utils.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
         Task buyBread = new Task("Buy bread", "Go to the store and buy bread", Status.NEW);
         Task buyMilk = new Task("Buy milk", "Go to the store and buy milk", Status.NEW);
         Epic relocate = new Epic("Relocate", "Relocate in Moscow");
@@ -22,6 +20,7 @@ public class Main {
         taskManager.createSubtask(buyTicket);
         taskManager.createSubtask(rentHousing);
         taskManager.createSubtask(englishCourses);
+        printAllTasksWithHistory(taskManager);
         printTasks("Before status update", taskManager);
         buyBread.setStatus(Status.DONE);
         taskManager.updateTask(buyBread);
@@ -42,5 +41,29 @@ public class Main {
         System.out.println();
         System.out.println();
         System.out.println();
+    }
+
+    private static void printAllTasksWithHistory(TaskManager manager) {
+        System.out.println("Задачи:");
+        for (Task task : manager.getTaskList()) {
+            System.out.println(task);
+        }
+        System.out.println("Эпики:");
+        for (Epic epic : manager.getEpicsList()) {
+            System.out.println(epic);
+
+            for (Subtask subtask : manager.getEpicSubtasks(epic)) {
+                System.out.println("--> " + subtask);
+            }
+        }
+        System.out.println("Подзадачи:");
+        for (Task subtask : manager.getSubtaskList()) {
+            System.out.println(subtask);
+        }
+
+        System.out.println("История:");
+        for (Task task : manager.getHistory()) {
+            System.out.println(task);
+        }
     }
 }
