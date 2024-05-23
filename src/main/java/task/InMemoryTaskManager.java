@@ -2,6 +2,7 @@ package task;
 
 import history.HistoryManager;
 import history.InMemoryHistoryManager;
+import utils.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HistoryManager historyManager = new InMemoryHistoryManager();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
@@ -84,25 +85,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createSubtask(Subtask subtask) {
-        Epic epic = subtask.getEpic();
-        if (epic.getId() == null || !epics.containsKey(epic.getId())) {
-            createEpic(epic);
-        } else {
-            Set<Subtask> epicSubtasks = epic.getSubtasks();
-            epic = epics.get(epic.getId());
-            for (Subtask s : epicSubtasks) {
-                epic.addOrUpdateSubtask(s);
+        if (subtask.getId() == null || !subtasks.containsKey(subtask.getId())) {
+            subtask.setId(this.nextTaskId);
+            subtasks.put(this.nextTaskId, subtask);
+            this.nextTaskId++;
+            Epic epic = subtask.getEpic();
+            if (epic.getId() == null || !epics.containsKey(epic.getId())) {
+                createEpic(epic);
+            } else {
+                Set<Subtask> epicSubtasks = epic.getSubtasks();
+                epic = epics.get(epic.getId());
+                for (Subtask s : epicSubtasks) {
+                    epic.addOrUpdateSubtask(s);
+                }
             }
+            epic.addOrUpdateSubtask(subtask);
         }
-        subtask.setId(this.nextTaskId);
-        subtasks.put(this.nextTaskId, subtask);
-        epic.addOrUpdateSubtask(subtask);
-        this.nextTaskId++;
         return subtask.getId();
     }
 
     @Override
     public int createEpic(Epic epic) {
+        if (epic.getId() != null && epics.containsKey(epic.getId())) {
+            return epic.getId();
+        }
         epic.setId(this.nextTaskId);
         epics.put(this.nextTaskId, epic);
         this.nextTaskId++;

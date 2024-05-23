@@ -18,7 +18,7 @@ public class Task {
         return id;
     }
 
-    public void setId(Integer id) {
+    protected void setId(Integer id) {
         this.id = id;
     }
 
@@ -52,7 +52,7 @@ public class Task {
             return true;
         if (obj == null)
             return false;
-        if (this.getClass() != obj.getClass())
+        if (!(obj instanceof Task))
             return false;
         Task otherTask = (Task) obj;
         return Objects.equals(otherTask.id, this.id);
@@ -60,6 +60,9 @@ public class Task {
 
     @Override
     public final int hashCode() {
+        if (id == null) {
+            return -1;
+        }
         return id * 31;
     }
 

@@ -13,9 +13,24 @@ class InMemoryTaskManagerTest {
 
     private TaskManager taskManager;
 
+    private Task task;
+    private Epic epic;
+    private Subtask subtask ;
+    private int taskId;
+    private int epicId;
+    private int subtaskId;
+    //Сделал только те проверки, которые были в рекомендациях. И то, часть из них не сделал, т.к. сам компилятор не
+    //пропускает. Например. Рекомендуют проверить, что эпик нельзя добавить в самого себя в виде подзадачи. Но у меня и
+    //не получится добавить эпик в подзадачу, т.к. я жду тип Subtask на вход, а не Epic - компилятор не пропустит.
     @BeforeEach
     void beforeEach() {
         taskManager = Managers.getDefault();
+        task = new Task("Test task", "Test addNewTask description", Status.NEW);
+        epic = new Epic("Test epic", "Epic description");
+        subtask = new Subtask("Test subtask", "Test description", Status.NEW, epic);
+        taskId = taskManager.createTask(task);
+        epicId = taskManager.createEpic(epic);
+        subtaskId = taskManager.createSubtask(subtask);
     }
 
     @Test
@@ -33,5 +48,70 @@ class InMemoryTaskManagerTest {
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
+    }
+
+    @Test
+    void checkTasksOnEqualsIfIdEqualsTest() {
+        Epic epicFromAnotherManager = new Epic("epicFromAnotherManager",
+                "epicFromAnotherManager description");
+        Subtask subtaskFromAnotherManager = new Subtask("subtaskFromAnotherManager",
+                "subtaskFromAnotherManager description", Status.NEW,
+                epicFromAnotherManager);
+        epicFromAnotherManager.addOrUpdateSubtask(subtaskFromAnotherManager);
+        Task taskFromAnotherManager = new Task("taskFromAnotherManager",
+                "taskFromAnotherManager description", Status.NEW);
+        TaskManager anotherTaskManager = Managers.getDefault();
+        int epicFromAnotherManagerId = anotherTaskManager.createEpic(epicFromAnotherManager);
+        int subtaskFromAnotherManagerId = anotherTaskManager.createSubtask(subtaskFromAnotherManager);
+        int taskFromAnotherManagerId = anotherTaskManager.createTask(taskFromAnotherManager);
+
+        assertEquals(taskId, epicFromAnotherManagerId, "ID задачи и эпика не совпадают");
+        assertEquals(task, epicFromAnotherManager, "Задача и эпик не совпадают");
+        assertEquals(epicId, subtaskFromAnotherManagerId, "ID эпика и подзадачи не совпадают");
+        assertEquals(epic, subtaskFromAnotherManager, "Эпик и подзадача не совпадают");
+
+        assertEquals(subtaskId, taskFromAnotherManagerId, "ID подзадачи и задачи не совпадают");
+        assertEquals(subtask, taskFromAnotherManager, "Подзадача и задача не совпадают");
+    }
+
+    @Test
+    void createAllTypeOfTasksAndCheckFieldsTest() {
+        Task task1 = taskManager.getTaskById(taskId);
+        Epic epic1 = taskManager.getEpicById(epicId);
+        Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+        assertEquals(task, task1, "Задачи не совпадают");
+        assertEquals(task.getId(), task1.getId(), "Id задач не совпадают");
+        assertEquals(task.getName(), task1.getName(), "Названия задач не совпадают");
+        assertEquals(task.getDescription(), task1.getDescription(), "Описания задач не совпадают");
+        assertEquals(epic, epic1, "Эпики не совпадают");
+        assertEquals(epic.getId(), epic1.getId(), "Id эпиков не совпадают");
+        assertEquals(epic.getName(), epic1.getName(), "Названия эпиков не совпадают");
+        assertEquals(epic.getDescription(), epic1.getDescription(), "Описания эпиков не совпадают");
+        assertEquals(subtask, subtask1, "Подзадачи не совпадают");
+        assertEquals(subtask.getId(), subtask1.getId(), "Id подзадач не совпадают");
+        assertEquals(subtask.getName(), subtask1.getName(), "Названия подзадач не совпадают");
+        assertEquals(subtask.getDescription(), subtask1.getDescription(), "Описания подзадач не совпадают");
+        int sizeOfAllTaskInMemory = taskManager.getTaskList().size() + taskManager.getEpicsList().size()
+                + taskManager.getSubtaskList().size();
+        assertEquals(3, sizeOfAllTaskInMemory, "Количество всех созданных задач не соответсвует " +
+                "действительности");
+    }
+
+    @Test
+    void checkHistoryTest(){
+        for(int i =0;i<3;i++){
+            Task task1 = taskManager.getTaskById(taskId);
+            Epic epic1 = taskManager.getEpicById(epicId);
+            Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+        }
+        assertEquals(9, taskManager.getHistory().size());
+        for(int i =0;i<3;i++){
+            Task task1 = taskManager.getTaskById(taskId);
+            Epic epic1 = taskManager.getEpicById(epicId);
+            Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+        }
+        assertEquals(10, taskManager.getHistory().size(),"Размер очереди больше 10");
+        assertEquals(subtaskId, taskManager.getHistory().getLast().getId(),
+                "Подзадача - не последний элемент в очереди");
     }
 }
