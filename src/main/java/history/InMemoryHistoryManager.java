@@ -1,5 +1,6 @@
 package history;
 
+import org.apache.commons.lang3.SerializationUtils;
 import task.Task;
 
 import java.util.LinkedList;
@@ -14,7 +15,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         if (task != null) {
-            history.addLast(task);
+            history.addLast(SerializationUtils.clone(task));
             if (history.size() > QUEUE_SIZE) {
                 history.removeFirst();
             }
@@ -33,6 +34,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        return history;
+        return new LinkedList<>(history);
     }
 }

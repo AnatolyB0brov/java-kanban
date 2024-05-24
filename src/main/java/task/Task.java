@@ -1,8 +1,9 @@
 package task;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Serializable {
     protected Integer id;
     protected String name;
     protected String description;

@@ -4,33 +4,28 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import utils.Managers;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    private TaskManager taskManager;
+    TaskManager taskManager;
 
-    private Task task;
-    private Epic epic;
-    private Subtask subtask ;
-    private int taskId;
-    private int epicId;
-    private int subtaskId;
-    //Сделал только те проверки, которые были в рекомендациях. И то, часть из них не сделал, т.к. сам компилятор не
-    //пропускает. Например. Рекомендуют проверить, что эпик нельзя добавить в самого себя в виде подзадачи. Но у меня и
-    //не получится добавить эпик в подзадачу, т.к. я жду тип Subtask на вход, а не Epic - компилятор не пропустит.
+    Task task;
+    Epic epic;
+    Subtask subtask;
+    int taskId;
+    int epicId;
+    int subtaskId;
 
-    //Ответь, пожалуйста, на коммент, который я оставил в классе Epic, по поводу HashMap. Верно ли я понял, что equals
-    //не вызывается при вызове add у HashSet
     @BeforeEach
     void beforeEach() {
         taskManager = Managers.getDefault();
-        task = new Task("Test task", "Test addNewTask description", Status.NEW);
+        task = new Task("Test task", "Task description", Status.NEW);
         epic = new Epic("Test epic", "Epic description");
-        subtask = new Subtask("Test subtask", "Test description", Status.NEW, epic);
+        subtask = new Subtask("Test subtask", "Subtask description", Status.NEW, epic);
         taskId = taskManager.createTask(task);
         epicId = taskManager.createEpic(epic);
         subtaskId = taskManager.createSubtask(subtask);
@@ -41,10 +36,17 @@ class InMemoryTaskManagerTest {
         final Task savedTask = taskManager.getTaskById(taskId);
         assertNotNull(savedTask, "Задача не найдена.");
         assertEquals(task, savedTask, "Задачи не совпадают.");
+        assertEquals(task.getName(), savedTask.getName(), "Названия не совпадают.");
+        assertEquals(task.getDescription(), savedTask.getDescription(), "Описания не совпадают.");
+        assertEquals(task.getStatus(), savedTask.getStatus(), "Статусы не совпадают.");
+
         final List<Task> tasks = taskManager.getTaskList();
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
+        assertEquals(task.getName(), tasks.get(0).getName(), "Названия не совпадают.");
+        assertEquals(task.getDescription(), tasks.get(0).getDescription(), "Описания не совпадают.");
+        assertEquals(task.getStatus(), tasks.get(0).getStatus(), "Статусы не совпадают.");
     }
 
     @Test
@@ -95,20 +97,43 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkHistoryTest(){
-        for(int i =0;i<3;i++){
+    void checkHistoryTest() {
+        for (int i = 0; i < 3; i++) {
             Task task1 = taskManager.getTaskById(taskId);
             Epic epic1 = taskManager.getEpicById(epicId);
             Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
         }
         assertEquals(9, taskManager.getHistory().size());
-        for(int i =0;i<3;i++){
+        for (int i = 0; i < 3; i++) {
             Task task1 = taskManager.getTaskById(taskId);
             Epic epic1 = taskManager.getEpicById(epicId);
             Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
         }
-        assertEquals(10, taskManager.getHistory().size(),"Размер очереди больше 10");
+        assertEquals(10, taskManager.getHistory().size(), "Размер очереди больше 10");
         assertEquals(subtaskId, taskManager.getHistory().getLast().getId(),
                 "Подзадача - не последний элемент в очереди");
+    }
+
+    @Test
+    void checkHistoryNotModifiedTest() {
+        Task task1 = taskManager.getTaskById(taskId);
+        Epic epic1 = taskManager.getEpicById(epicId);
+        Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+        List<Task> tasksFromManager = new ArrayList<>();
+        tasksFromManager.add(task1);
+        tasksFromManager.add(epic1);
+        tasksFromManager.add(subtask1);
+        task1.setDescription("New task description");
+        epic1.setDescription("New epic description");
+        subtask1.setDescription("New subtask description");
+        List<Task> history = taskManager.getHistory();
+        for (Task taskFromHistory : history) {
+            for (Task taskFromManager : tasksFromManager) {
+                if (taskFromManager.getId().equals(taskFromHistory.getId())) {
+                    assertNotEquals(taskFromManager.getDescription(), taskFromHistory.getDescription(),
+                            "Описание объекта с id = " + taskFromHistory.getId() + " в истории изменилось");
+                }
+            }
+        }
     }
 }
