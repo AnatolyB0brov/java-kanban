@@ -70,12 +70,12 @@ public class InMemoryHistoryManager implements HistoryManager {
             Node<Task> nextNode = node.next;
             if (prevNode != null) {
                 prevNode.next = nextNode;
-            }else {
+            } else {
                 head = nextNode;
             }
             if (nextNode != null) {
                 nextNode.prev = prevNode;
-            }else{
+            } else {
                 tail = prevNode;
             }
         }
