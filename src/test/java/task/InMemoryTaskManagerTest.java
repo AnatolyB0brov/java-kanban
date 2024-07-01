@@ -16,9 +16,11 @@ class InMemoryTaskManagerTest {
     Task task;
     Epic epic;
     Subtask subtask;
+    Subtask secondSubtask;
     int taskId;
     int epicId;
     int subtaskId;
+    int subtask_2Id;
 
     @BeforeEach
     void beforeEach() {
@@ -26,9 +28,12 @@ class InMemoryTaskManagerTest {
         task = new Task("Test task", "Task description", Status.NEW);
         epic = new Epic("Test epic", "Epic description");
         subtask = new Subtask("Test subtask", "Subtask description", Status.NEW, epic);
+        secondSubtask = new Subtask("Test second subtask", "Second subtask description",
+                Status.NEW, epic);
         taskId = taskManager.createTask(task);
         epicId = taskManager.createEpic(epic);
         subtaskId = taskManager.createSubtask(subtask);
+        subtask_2Id = taskManager.createSubtask(secondSubtask);
     }
 
     @Test
@@ -90,28 +95,24 @@ class InMemoryTaskManagerTest {
         assertEquals(subtask.getId(), subtask1.getId(), "Id подзадач не совпадают");
         assertEquals(subtask.getName(), subtask1.getName(), "Названия подзадач не совпадают");
         assertEquals(subtask.getDescription(), subtask1.getDescription(), "Описания подзадач не совпадают");
-        int sizeOfAllTaskInMemory = taskManager.getTaskList().size() + taskManager.getEpicsList().size()
-                + taskManager.getSubtaskList().size();
-        assertEquals(3, sizeOfAllTaskInMemory, "Количество всех созданных задач не соответсвует " +
-                "действительности");
+        assertEquals(4, getSizeOfAllTaskInMemory(), "Количество всех созданных задач не " +
+                "соответсвует действительности");
     }
 
     @Test
     void checkHistoryTest() {
         for (int i = 0; i < 3; i++) {
             Task task1 = taskManager.getTaskById(taskId);
+            assertEquals(taskId, taskManager.getHistory().getLast().getId(),
+                    "Задача - не последний элемент в очереди");
             Epic epic1 = taskManager.getEpicById(epicId);
+            assertEquals(epicId, taskManager.getHistory().getLast().getId(),
+                    "Эпик - не последний элемент в очереди");
             Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+            assertEquals(subtaskId, taskManager.getHistory().getLast().getId(),
+                    "Подзадача - не последний элемент в очереди");
         }
-        assertEquals(9, taskManager.getHistory().size());
-        for (int i = 0; i < 3; i++) {
-            Task task1 = taskManager.getTaskById(taskId);
-            Epic epic1 = taskManager.getEpicById(epicId);
-            Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
-        }
-        assertEquals(10, taskManager.getHistory().size(), "Размер очереди больше 10");
-        assertEquals(subtaskId, taskManager.getHistory().getLast().getId(),
-                "Подзадача - не последний элемент в очереди");
+        assertEquals(3, taskManager.getHistory().size());
     }
 
     @Test
@@ -135,5 +136,26 @@ class InMemoryTaskManagerTest {
                 }
             }
         }
+    }
+
+    @Test
+    void deleteSubtaskByIdTest() {
+        Epic testEpic = taskManager.getEpicById(epicId);
+        int epicSizeBeforeDelete = testEpic.getSubtasks().size();
+        taskManager.deleteSubtaskById(subtaskId);
+        assertNotEquals(testEpic.getSubtasks().size(),epicSizeBeforeDelete);
+    }
+
+    @Test
+    void deleteEpicByIdTest() {
+        taskManager.deleteEpicById(epicId);
+        assertEquals(0,taskManager.getEpicsList().size());
+        assertEquals(0,taskManager.getSubtaskList().size(),"При удалении эпика не удалились его " +
+                "подзадачи");
+    }
+
+    int getSizeOfAllTaskInMemory() {
+        return taskManager.getTaskList().size() + taskManager.getEpicsList().size()
+                + taskManager.getSubtaskList().size();
     }
 }
