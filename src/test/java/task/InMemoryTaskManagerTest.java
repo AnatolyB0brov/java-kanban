@@ -20,7 +20,7 @@ class InMemoryTaskManagerTest {
     int taskId;
     int epicId;
     int subtaskId;
-    int subtask_2Id;
+    int secondSubtaskId;
 
     @BeforeEach
     void beforeEach() {
@@ -33,7 +33,7 @@ class InMemoryTaskManagerTest {
         taskId = taskManager.createTask(task);
         epicId = taskManager.createEpic(epic);
         subtaskId = taskManager.createSubtask(subtask);
-        subtask_2Id = taskManager.createSubtask(secondSubtask);
+        secondSubtaskId = taskManager.createSubtask(secondSubtask);
     }
 
     @Test
