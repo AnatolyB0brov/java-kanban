@@ -44,10 +44,8 @@ jobs:
       - name: Build tests
         run: |
           find ./test -type f -name "*.java" > tests.txt
-          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/apiguardian-api-1.1.2.jar:./test @tests.txt
-          javac -d out -cp ./out:./tests/lib/junit-platform-console-standalone-1.9.3.jar:./tests/lib/commons-lang3-3.14.0.jar:./test @tests.txt
+          javac -d out -cp ./out:./lib:./test @tests.txt
 
       - name: Run tests
         run: |
-          java -jar ./tests/lib/junit-platform-console-standalone-1.9.3.jar --class-path ./tests/lib/apiguardian-api-1.1.2.jar:./out --scan-class-path
-          java -jar ./tests/lib/junit-platform-console-standalone-1.9.3.jar --class-path ./tests/lib/commons-lang3-3.14.0.jar:./out --scan-class-path
+          java -jar ./tests/lib/junit-platform-console-standalone-1.9.3.jar --class-path ./out --scan-class-path
