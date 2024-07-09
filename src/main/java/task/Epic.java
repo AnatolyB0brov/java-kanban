@@ -47,11 +47,7 @@ public class Epic extends Task {
                     case DONE -> isAllNew = false;
                 }
             }
-            if (isAllNew) {
-                status = Status.NEW;
-            } else {
-                status = Status.DONE;
-            }
+            status = isAllNew ? Status.NEW : Status.DONE;
         }
     }
 

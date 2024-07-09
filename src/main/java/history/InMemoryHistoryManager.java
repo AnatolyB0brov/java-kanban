@@ -1,6 +1,7 @@
 package history;
 
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;//Оставлю так, т.к. clone делает deepCopy, что даёт гарантии полного
+// копирования, даже когда объект станет сложнее
 import task.Task;
 
 import java.util.ArrayList;
@@ -30,8 +31,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    //По заданию нужно было сделать метод getTasks, который, по сути, возвращает историю
-    //В итоге метод getHistory просто вызывает getTasks
     @Override
     public List<Task> getHistory() {
         return getTasks();
@@ -39,8 +38,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        removeNode(nodeHashMap.get(id));
-        nodeHashMap.remove(id);
+        removeNode(nodeHashMap.remove(id));
     }
 
     private void linkLast(Task task) {
@@ -48,33 +46,34 @@ public class InMemoryHistoryManager implements HistoryManager {
         final Node<Task> newNode = new Node<>(oldTail, task, null);
         tail = newNode;
         nodeHashMap.put(task.getId(), newNode);
-        if (oldTail == null)
+        if (oldTail == null) {
             head = newNode;
-        else
-            oldTail.next = newNode;
+        } else {
+            oldTail.setNext(newNode);
+        }
     }
 
     private List<Task> getTasks() {
         List<Task> allTasks = new ArrayList<>();
         Node<Task> headNode = head;
         while (headNode != null) {
-            allTasks.add(headNode.data);
-            headNode = headNode.next;
+            allTasks.add(headNode.getData());
+            headNode = headNode.getNext();
         }
         return allTasks;
     }
 
     private void removeNode(Node<Task> node) {
         if (node != null && !nodeHashMap.isEmpty()) {
-            Node<Task> prevNode = node.prev;
-            Node<Task> nextNode = node.next;
+            Node<Task> prevNode = node.getPrev();
+            Node<Task> nextNode = node.getNext();
             if (prevNode != null) {
-                prevNode.next = nextNode;
+                prevNode.setNext(nextNode);
             } else {
                 head = nextNode;
             }
             if (nextNode != null) {
-                nextNode.prev = prevNode;
+                nextNode.setPrev(prevNode);
             } else {
                 tail = prevNode;
             }

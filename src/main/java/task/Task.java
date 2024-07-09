@@ -47,14 +47,15 @@ public class Task implements Serializable {
         this.status = status;
     }
 
+    //IDEA подсказала, что можно вообще убрать obj==null
     @Override
     public final boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (!(obj instanceof Task)) {
             return false;
-        if (!(obj instanceof Task))
-            return false;
+        }
         Task otherTask = (Task) obj;
         return Objects.equals(otherTask.id, this.id);
     }
