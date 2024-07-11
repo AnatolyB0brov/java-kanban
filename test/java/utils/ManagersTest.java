@@ -2,7 +2,7 @@ package utils;
 
 import history.HistoryManager;
 import org.junit.jupiter.api.Test;
-import task.TaskManager;
+import taskManager.TaskManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 

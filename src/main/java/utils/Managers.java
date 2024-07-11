@@ -2,12 +2,19 @@ package utils;
 
 import history.HistoryManager;
 import history.InMemoryHistoryManager;
-import task.InMemoryTaskManager;
-import task.TaskManager;
+import taskManager.FileBackedTaskManager;
+import taskManager.InMemoryTaskManager;
+import taskManager.TaskManager;
+
+import java.io.File;
 
 public class Managers {
     public static TaskManager getDefault() {
         return new InMemoryTaskManager();
+    }
+
+    public static TaskManager getFileBackedTaskManager(File databaseFile){
+        return new FileBackedTaskManager(databaseFile);
     }
 
     public static HistoryManager getDefaultHistory() {

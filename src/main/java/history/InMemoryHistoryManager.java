@@ -1,7 +1,6 @@
 package history;
 
-import org.apache.commons.lang3.SerializationUtils;//Оставлю так, т.к. clone делает deepCopy, что даёт гарантии полного
-// копирования, даже когда объект станет сложнее
+import org.apache.commons.lang3.SerializationUtils;
 import task.Task;
 
 import java.util.ArrayList;

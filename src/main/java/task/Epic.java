@@ -1,9 +1,10 @@
 package task;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Epic extends Task {
+public class Epic extends Task implements Serializable {
 
     private final Set<Subtask> subtasks = new HashSet<>();
 

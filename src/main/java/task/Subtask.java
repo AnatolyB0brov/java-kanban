@@ -1,6 +1,8 @@
 package task;
 
-public class Subtask extends Task {
+import java.io.Serializable;
+
+public class Subtask extends Task implements Serializable {
 
     private final Epic epic;
 

@@ -1,6 +1,9 @@
-package task;
+package taskManager;
 
 import history.HistoryManager;
+import task.Epic;
+import task.Subtask;
+import task.Task;
 import utils.Managers;
 
 import java.util.ArrayList;
@@ -190,5 +193,32 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    protected HashMap<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    protected HashMap<Integer, Subtask> getSubtasks() {
+        return subtasks;
+    }
+
+    protected HashMap<Integer, Epic> getEpics() {
+        return epics;
+    }
+
+    protected void setTasks(HashMap<Integer, Task> tasks) {
+        this.tasks.clear();
+        this.tasks.putAll(tasks);
+    }
+
+    protected void setSubtasks(HashMap<Integer, Subtask> subtasks) {
+        this.subtasks.clear();
+        this.subtasks.putAll(subtasks);
+    }
+
+    protected void setEpics(HashMap<Integer, Epic> epics) {
+        this.epics.clear();
+        this.epics.putAll(epics);
     }
 }
