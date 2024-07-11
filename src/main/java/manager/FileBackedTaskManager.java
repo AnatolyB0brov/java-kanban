@@ -1,4 +1,4 @@
-package taskManager;
+package manager;
 
 import exception.ManagerSaveException;
 import task.Epic;

@@ -1,8 +1,9 @@
 package utils;
 
 import history.HistoryManager;
+import manager.Managers;
 import org.junit.jupiter.api.Test;
-import taskManager.TaskManager;
+import manager.TaskManager;
 
 import static org.junit.jupiter.api.Assertions.*;
 

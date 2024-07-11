@@ -1,6 +1,6 @@
 import task.*;
-import taskManager.TaskManager;
-import utils.Managers;
+import manager.TaskManager;
+import manager.Managers;
 
 public class Main {
 

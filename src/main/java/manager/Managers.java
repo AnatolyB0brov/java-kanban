@@ -1,10 +1,7 @@
-package utils;
+package manager;
 
 import history.HistoryManager;
 import history.InMemoryHistoryManager;
-import taskManager.FileBackedTaskManager;
-import taskManager.InMemoryTaskManager;
-import taskManager.TaskManager;
 
 import java.io.File;
 
