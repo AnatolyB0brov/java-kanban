@@ -1,18 +1,20 @@
 package manager;
 
 import exception.ManagerSaveException;
+import history.HistoryManager;
 import task.Epic;
 import task.Subtask;
 import task.Task;
 
 import java.io.*;
+import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private final File databaseFile;
 
-    public FileBackedTaskManager(File databaseFile) {
-        super();
+    public FileBackedTaskManager(File databaseFile, HistoryManager historyManager) {
+        super(historyManager);
         this.databaseFile = databaseFile;
     }
 
@@ -25,11 +27,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void deleteAllSubtasks() {
         super.deleteAllSubtasks();
+        save();
     }
 
     @Override
     public void deleteAllEpics() {
         super.deleteAllEpics();
+        save();
     }
 
     @Override
@@ -95,8 +99,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return isDone;
     }
 
+    @Override
+    public List<Task> getTaskList() {
+        List<Task> taskList = super.getTaskList();
+        save();
+        return taskList;
+    }
+
+    @Override
+    public List<Subtask> getSubtaskList() {
+        List<Subtask> subtaskList = super.getSubtaskList();
+        save();
+        return subtaskList;
+    }
+
+    @Override
+    public List<Epic> getEpicsList() {
+        List<Epic> epicList = super.getEpicsList();
+        save();
+        return epicList;
+    }
+
+    @Override
+    public Task getTaskById(int id) {
+        Task task = super.getTaskById(id);
+        save();
+        return task;
+    }
+
+    @Override
+    public Subtask getSubtaskById(int id) {
+        Subtask subtask = super.getSubtaskById(id);
+        save();
+        return subtask;
+    }
+
+    @Override
+    public Epic getEpicById(int id) {
+        Epic epic = super.getEpicById(id);
+        save();
+        return epic;
+    }
+
     public void save() {
-        FileBackedDto fileBackedDto = new FileBackedDto(getTasks(), getSubtasks(), getEpics());
+        FileBackedDto fileBackedDto = new FileBackedDto(getTasks(), getSubtasks(), getEpics(), getNextTaskId(),
+                getHistoryManager());
         try (FileOutputStream fileOutputStream = new FileOutputStream(databaseFile);
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
             objectOutputStream.writeObject(fileBackedDto);
@@ -109,12 +156,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public static FileBackedTaskManager loadFromFile(File file) throws ManagerSaveException {
         try (FileInputStream fileInputStream = new FileInputStream(file);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-            FileBackedDto fileBackedDto = (FileBackedDto) objectInputStream.readObject();
-            FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
-            fileBackedTaskManager.setTasks(fileBackedDto.getTasks());
-            fileBackedTaskManager.setSubtasks(fileBackedDto.getSubtasks());
-            fileBackedTaskManager.setEpics(fileBackedDto.getEpics());
-            return fileBackedTaskManager;
+            Object obj = objectInputStream.readObject();
+            if (obj instanceof FileBackedDto fileBackedDto) {
+                FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file,
+                        fileBackedDto.getHistoryManager());
+                fileBackedTaskManager.setTasks(fileBackedDto.getTasks());
+                fileBackedTaskManager.setSubtasks(fileBackedDto.getSubtasks());
+                fileBackedTaskManager.setEpics(fileBackedDto.getEpics());
+                fileBackedTaskManager.setNextTaskId(fileBackedDto.getNextTaskId());
+                return fileBackedTaskManager;
+            } else {
+                throw new ManagerSaveException("Неверный тип объекта в файле");
+            }
         } catch (IOException | ClassNotFoundException e) {
             throw new ManagerSaveException(e);
         }

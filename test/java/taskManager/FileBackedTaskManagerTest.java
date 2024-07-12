@@ -46,7 +46,27 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
-    void checkIfFileBackedTaskManagerSuccessfullyRestoredFromFile() {
+    void checkIfHistorySuccessfullyRestoredFromFile() {
+        taskManager.getTaskById(0);
+        taskManager.getSubtaskList();
+        taskManager.getEpicsList();
+        List<Task> taskInHistoryList = taskManager.getHistory();
+        TaskManager anotherTaskManager = FileBackedTaskManager.loadFromFile(databaseFile);
+        boolean isFound;
+        for (Task taskInHistory : taskInHistoryList) {
+            isFound = false;
+            for (Task anotherHistoryTask : anotherTaskManager.getHistory()) {
+                if (checkTaskOnEquals(anotherHistoryTask, taskInHistory)) {
+                    isFound = true;
+                    break;
+                }
+            }
+            assertTrue(isFound, "История " + taskInHistory.getId() + " не сохранилась в файл");
+        }
+    }
+
+    @Test
+    void checkIfTasksSuccessfullyRestoredFromFile() {
         TaskManager anotherTaskManager = FileBackedTaskManager.loadFromFile(databaseFile);
         Task t = anotherTaskManager.getTaskList().getFirst();
         assertTrue(checkTaskOnEquals(t, task), "Задача не сохранилась в файл");
@@ -80,6 +100,14 @@ class FileBackedTaskManagerTest {
             isFound = true;
         }
         assertTrue(isFound, "Эпик не сохранился в файл");
+    }
+
+    @Test
+    void checkIfNextTaskIdSuccessfullyRestoredFromFile() {
+        TaskManager anotherTaskManager = FileBackedTaskManager.loadFromFile(databaseFile);
+        int taskId = taskManager.createTask(new Task("name", "des", Status.NEW));
+        int restoredManagerTaskId = anotherTaskManager.createTask(new Task("name", "des", Status.NEW));
+        assertEquals(taskId, restoredManagerTaskId, "Генератора идентификаторов не восстановлен");
     }
 
     <T extends Task> boolean checkTaskOnEquals(T firstTask, T secondTask) {

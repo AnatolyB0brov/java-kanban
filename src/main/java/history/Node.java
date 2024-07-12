@@ -1,6 +1,8 @@
 package history;
 
-public final class Node<T> {
+import java.io.Serializable;
+
+public final class Node<T> implements Serializable {
     private T data;
     private Node<T> next;
     private Node<T> prev;
