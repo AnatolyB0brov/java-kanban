@@ -2,7 +2,8 @@ package task;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import utils.Managers;
+import manager.TaskManager;
+import manager.Managers;
 
 import java.util.ArrayList;
 import java.util.List;

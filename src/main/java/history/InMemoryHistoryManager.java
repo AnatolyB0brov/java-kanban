@@ -1,14 +1,14 @@
 package history;
 
-import org.apache.commons.lang3.SerializationUtils;//Оставлю так, т.к. clone делает deepCopy, что даёт гарантии полного
-// копирования, даже когда объект станет сложнее
+import org.apache.commons.lang3.SerializationUtils;
 import task.Task;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class InMemoryHistoryManager implements HistoryManager {
+public class InMemoryHistoryManager implements HistoryManager, Serializable {
 
     private final HashMap<Integer, Node<Task>> nodeHashMap = new HashMap<>();
     private Node<Task> head;

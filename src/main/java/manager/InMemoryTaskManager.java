@@ -1,7 +1,9 @@
-package task;
+package manager;
 
 import history.HistoryManager;
-import utils.Managers;
+import task.Epic;
+import task.Subtask;
+import task.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +12,15 @@ import java.util.Set;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager;
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int nextTaskId = 0;
+
+    public InMemoryTaskManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 
     @Override
     public List<Task> getTaskList() {
@@ -190,5 +196,44 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    protected HashMap<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    protected HashMap<Integer, Subtask> getSubtasks() {
+        return subtasks;
+    }
+
+    protected HashMap<Integer, Epic> getEpics() {
+        return epics;
+    }
+
+    protected void setTasks(HashMap<Integer, Task> tasks) {
+        this.tasks.clear();
+        this.tasks.putAll(tasks);
+    }
+
+    protected void setSubtasks(HashMap<Integer, Subtask> subtasks) {
+        this.subtasks.clear();
+        this.subtasks.putAll(subtasks);
+    }
+
+    protected void setEpics(HashMap<Integer, Epic> epics) {
+        this.epics.clear();
+        this.epics.putAll(epics);
+    }
+
+    protected int getNextTaskId() {
+        return nextTaskId;
+    }
+
+    protected void setNextTaskId(int nextTaskId) {
+        this.nextTaskId = nextTaskId;
+    }
+
+    protected HistoryManager getHistoryManager() {
+        return historyManager;
     }
 }
