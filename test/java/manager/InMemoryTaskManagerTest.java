@@ -1,40 +1,25 @@
-package task;
+package manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import manager.TaskManager;
-import manager.Managers;
+import task.Epic;
+import task.Status;
+import task.Subtask;
+import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager>  {
 
-    TaskManager taskManager;
-
-    Task task;
-    Epic epic;
-    Subtask subtask;
-    Subtask secondSubtask;
-    int taskId;
-    int epicId;
-    int subtaskId;
-    int secondSubtaskId;
-
-    @BeforeEach
-    void beforeEach() {
-        taskManager = Managers.getDefault();
-        task = new Task("Test task", "Task description", Status.NEW);
-        epic = new Epic("Test epic", "Epic description");
-        subtask = new Subtask("Test subtask", "Subtask description", Status.NEW, epic);
-        secondSubtask = new Subtask("Test second subtask", "Second subtask description",
-                Status.NEW, epic);
-        taskId = taskManager.createTask(task);
-        epicId = taskManager.createEpic(epic);
-        subtaskId = taskManager.createSubtask(subtask);
-        secondSubtaskId = taskManager.createSubtask(secondSubtask);
+    @Override
+    protected TaskManager createTaskManager () {
+        return Managers.getDefault();
     }
 
     @Test
@@ -49,22 +34,22 @@ class InMemoryTaskManagerTest {
         final List<Task> tasks = taskManager.getTaskList();
         assertNotNull(tasks, "Задачи не возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
-        assertEquals(task, tasks.get(0), "Задачи не совпадают.");
-        assertEquals(task.getName(), tasks.get(0).getName(), "Названия не совпадают.");
-        assertEquals(task.getDescription(), tasks.get(0).getDescription(), "Описания не совпадают.");
-        assertEquals(task.getStatus(), tasks.get(0).getStatus(), "Статусы не совпадают.");
+        assertEquals(task, tasks.getFirst(), "Задачи не совпадают.");
+        assertEquals(task.getName(), tasks.getFirst().getName(), "Названия не совпадают.");
+        assertEquals(task.getDescription(), tasks.getFirst().getDescription(), "Описания не совпадают.");
+        assertEquals(task.getStatus(), tasks.getFirst().getStatus(), "Статусы не совпадают.");
     }
 
     @Test
-    void checkTasksOnEqualsIfIdEqualsTest() {
+    void checkTasksOnEqualsIfIdEquals() {
         Epic epicFromAnotherManager = new Epic("epicFromAnotherManager",
                 "epicFromAnotherManager description");
         Subtask subtaskFromAnotherManager = new Subtask("subtaskFromAnotherManager",
                 "subtaskFromAnotherManager description", Status.NEW,
-                epicFromAnotherManager);
+                Duration.of(60, ChronoUnit.MINUTES), epicFromAnotherManager);
         epicFromAnotherManager.addOrUpdateSubtask(subtaskFromAnotherManager);
         Task taskFromAnotherManager = new Task("taskFromAnotherManager",
-                "taskFromAnotherManager description", Status.NEW);
+                "taskFromAnotherManager description", Status.NEW, Duration.of(60, ChronoUnit.MINUTES));
         TaskManager anotherTaskManager = Managers.getDefault();
         int epicFromAnotherManagerId = anotherTaskManager.createEpic(epicFromAnotherManager);
         int subtaskFromAnotherManagerId = anotherTaskManager.createSubtask(subtaskFromAnotherManager);
@@ -80,7 +65,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void createAllTypeOfTasksAndCheckFieldsTest() {
+    void createAllTypeOfTasksAndCheckFields() {
         Task task1 = taskManager.getTaskById(taskId);
         Epic epic1 = taskManager.getEpicById(epicId);
         Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
@@ -101,23 +86,36 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkHistoryTest() {
+    void checkHistoryQueueAndDuplicates() {
+        List<Task> history = taskManager.getHistory();
+        assertEquals(0, history.size(), "История не пустая");
         for (int i = 0; i < 3; i++) {
-            Task task1 = taskManager.getTaskById(taskId);
+            taskManager.getTaskById(taskId);
             assertEquals(taskId, taskManager.getHistory().getLast().getId(),
                     "Задача - не последний элемент в очереди");
-            Epic epic1 = taskManager.getEpicById(epicId);
+            taskManager.getEpicById(epicId);
             assertEquals(epicId, taskManager.getHistory().getLast().getId(),
                     "Эпик - не последний элемент в очереди");
-            Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
+            taskManager.getSubtaskById(subtaskId);
             assertEquals(subtaskId, taskManager.getHistory().getLast().getId(),
                     "Подзадача - не последний элемент в очереди");
         }
-        assertEquals(3, taskManager.getHistory().size());
+        assertEquals(3, taskManager.getHistory().size(), "В истории неверное количество записей");
+        history = taskManager.getHistory();
+        List<Integer> idList = new ArrayList<>();
+        boolean noDuplicates = true;
+        for (Task taskInHistory : history) {
+            if (idList.contains(taskInHistory.getId())) {
+                noDuplicates = false;
+                break;
+            }
+            idList.add(taskInHistory.getId());
+        }
+        assertTrue(noDuplicates, "В истории есть дубликаты");
     }
 
     @Test
-    void checkHistoryNotModifiedTest() {
+    void checkHistoryNotModified() {
         Task task1 = taskManager.getTaskById(taskId);
         Epic epic1 = taskManager.getEpicById(epicId);
         Subtask subtask1 = taskManager.getSubtaskById(subtaskId);
@@ -140,19 +138,55 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void deleteSubtaskByIdTest() {
+    void deleteSubtaskById() {
         Epic testEpic = taskManager.getEpicById(epicId);
         int epicSizeBeforeDelete = testEpic.getSubtasks().size();
         taskManager.deleteSubtaskById(subtaskId);
-        assertNotEquals(testEpic.getSubtasks().size(),epicSizeBeforeDelete);
+        assertNotEquals(testEpic.getSubtasks().size(), epicSizeBeforeDelete);
     }
 
     @Test
-    void deleteEpicByIdTest() {
+    void deleteEpicById() {
         taskManager.deleteEpicById(epicId);
-        assertEquals(0,taskManager.getEpicsList().size());
-        assertEquals(0,taskManager.getSubtaskList().size(),"При удалении эпика не удалились его " +
+        assertEquals(0, taskManager.getEpicsList().size());
+        assertEquals(0, taskManager.getSubtaskList().size(), "При удалении эпика не удалились его " +
                 "подзадачи");
+    }
+
+    @Test
+    void testEpicStatuses() {
+        Subtask thirdSubtask = new Subtask("Test subtask 3", "Subtask description 3", Status.NEW,
+                Duration.of(60, ChronoUnit.MINUTES), epic);
+        taskManager.createSubtask(thirdSubtask);
+        assertEquals(Status.NEW, epic.getStatus(), "Статус эпика должен быть NEW");
+        thirdSubtask.setStatus(Status.DONE);
+        taskManager.updateSubtask(thirdSubtask);
+        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика должен быть IN_PROGRESS");
+        subtask.setStatus(Status.DONE);
+        secondSubtask.setStatus(Status.DONE);
+        taskManager.updateSubtask(subtask);
+        taskManager.updateSubtask(secondSubtask);
+        assertEquals(Status.DONE, epic.getStatus(), "Статус эпика должен быть DONE");
+        thirdSubtask.setStatus(Status.IN_PROGRESS);
+        taskManager.updateSubtask(thirdSubtask);
+        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус эпика должен быть IN_PROGRESS");
+    }
+
+    @Test
+    void taskNotCrossing() {
+        Task testTask = new Task("Test task 1", "Task description 1", Status.NEW,
+                Duration.of(60, ChronoUnit.MINUTES));
+        testTask.setStartTime(LocalDateTime.of(2024, 10, 1, 6, 0));
+        assertEquals(-1, taskManager.createTask(testTask), "Проверка на пересечение по времени " +
+                "работает неверно");
+    }
+
+    @Test
+    void checkIfSubtasksHaveEpic() {
+        List<Subtask> subtasks = taskManager.getSubtaskList();
+        for (Subtask s : subtasks) {
+            assertNotNull(s.getEpic(), "У подзадачи с id " + s.getId() + " нет эпика");
+        }
     }
 
     int getSizeOfAllTaskInMemory() {
