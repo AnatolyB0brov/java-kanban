@@ -44,13 +44,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
-        removeAllFromPrioritizedTasks(tasks.values());
+        removeFromPrioritizedTasks(tasks.values());
         tasks.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
-        removeAllFromPrioritizedTasks(subtasks.values());
+        removeFromPrioritizedTasks(subtasks.values());
         subtasks.clear();
     }
 
@@ -219,6 +219,12 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        historyManager.add(prioritizedTasks.stream().toList());
+        return prioritizedTasks;
+    }
+
     protected HashMap<Integer, Task> getTasks() {
         return tasks;
     }
@@ -258,11 +264,6 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    public TreeSet<Task> getPrioritizedTasks() {
-        historyManager.add(prioritizedTasks.stream().toList());
-        return prioritizedTasks;
-    }
-
     private void addToPrioritizedTasks(Task task) {
         if (task.getStartTime() != null) {
             prioritizedTasks.add(task);
@@ -275,7 +276,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private <T extends Task> void removeAllFromPrioritizedTasks(Collection<T> taskList) {
+    private <T extends Task> void removeFromPrioritizedTasks(Collection<T> taskList) {
         taskList.forEach(this::removeFromPrioritizedTasks);
     }
 
@@ -284,10 +285,8 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
         for (Task t : prioritizedTasks) {
-            if (task.getId() != null) {
-                if (t.getId().equals(task.getId())) {
-                    continue;
-                }
+            if (task.getId() != null && t.getId().equals(task.getId())) {
+                continue;
             }
             if (task.getStartTime().isBefore(t.getEndTime()) && t.getStartTime().isBefore(task.getEndTime())) {
                 return true;

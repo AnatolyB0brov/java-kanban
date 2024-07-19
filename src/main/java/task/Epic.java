@@ -7,8 +7,6 @@ import java.util.*;
 
 public class Epic extends Task implements Serializable {
 
-    private LocalDateTime endTime;
-
     private final HashSet<Subtask> subtasks = new HashSet<>();
 
     public Epic(String name, String description) {

@@ -78,7 +78,6 @@ public class Task implements Comparable<Task>, Serializable {
         this.startTime = startTime;
     }
 
-    //IDEA подсказала, что можно вообще убрать obj==null
     @Override
     public final boolean equals(Object obj) {
         if (this == obj) {
@@ -111,15 +110,6 @@ public class Task implements Comparable<Task>, Serializable {
 
     @Override
     public int compareTo(Task task) {
-/*        if (task.getStartTime() == null && this.getStartTime() == null) {
-            return EQUAL;
-        }
-        if (this.getStartTime() == null) {
-            return LESSER;
-        }
-        if (task.getStartTime() == null) {
-            return GREATER;
-        }*/
         return this.startTime.compareTo(task.startTime);
     }
 }
