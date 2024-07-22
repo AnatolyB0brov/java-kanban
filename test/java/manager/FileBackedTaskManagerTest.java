@@ -71,7 +71,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @Test
     void checkIfTasksRestoredFromFile() {
         TaskManager restoredTaskManager = FileBackedTaskManager.loadFromFile(databaseFile);
-        Task t = restoredTaskManager.getTaskList().getFirst();
+        Task t = restoredTaskManager.getTaskList().get(0);
         assertTrue(checkTaskOnEquals(t, task), "Задача не сохранилась в файл");
         boolean isFound;
         List<Subtask> subtaskList = restoredTaskManager.getSubtaskList();
@@ -86,7 +86,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
             assertTrue(isFound, "Подзадача " + s.getId() + " не сохранилась в файл");
         }
         isFound = false;
-        Epic e = restoredTaskManager.getEpicsList().getFirst();
+        Epic e = restoredTaskManager.getEpicsList().get(0);
         if (checkTaskOnEquals(e, epic)) {
             Set<Subtask> subtasksE = e.getSubtasks();
             Set<Subtask> subtasksEpic = epic.getSubtasks();

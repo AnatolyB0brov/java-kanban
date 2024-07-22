@@ -1,5 +1,6 @@
 package manager;
 
+import exception.ManagerSaveException;
 import history.HistoryManager;
 import task.Epic;
 import task.Subtask;
@@ -82,9 +83,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createTask(Task task) {
+    public int createTask(Task task) throws ManagerSaveException {
         if (isCrossing(task)) {
-            return -1;
+            throw new ManagerSaveException("Пересечение по времени с другими задачами!");
         }
         task.setId(this.nextTaskId);
         tasks.put(this.nextTaskId, task);
@@ -94,9 +95,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int createSubtask(Subtask subtask) {
+    public int createSubtask(Subtask subtask) throws ManagerSaveException {
         if (isCrossing(subtask)) {
-            return -1;
+            throw new ManagerSaveException("Пересечение по времени с другими задачами!");
         }
         if (subtask.getId() == null || !subtasks.containsKey(subtask.getId())) {
             subtask.setId(this.nextTaskId);
@@ -133,9 +134,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean updateTask(Task task) {
+    public boolean updateTask(Task task) throws ManagerSaveException {
         if (isCrossing(task)) {
-            return false;
+            throw new ManagerSaveException("Пересечение по времени с другими задачами!");
         }
         if (task.getId() != null && tasks.containsKey(task.getId())) {
             removeFromPrioritizedTasks(tasks.get(task.getId()));
@@ -147,9 +148,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean updateSubtask(Subtask subtask) {
+    public boolean updateSubtask(Subtask subtask) throws ManagerSaveException {
         if (isCrossing(subtask)) {
-            return false;
+            throw new ManagerSaveException("Пересечение по времени с другими задачами!");
         }
         if (subtask.getId() != null && subtasks.containsKey(subtask.getId())) {
             removeFromPrioritizedTasks(subtasks.get(subtask.getId()));
@@ -284,7 +285,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getStartTime() == null) {
             return false;
         }
-        for (Task t : prioritizedTasks) {
+/*        for (Task t : prioritizedTasks) {
             if (task.getId() != null && t.getId().equals(task.getId())) {
                 continue;
             }
@@ -292,6 +293,11 @@ public class InMemoryTaskManager implements TaskManager {
                 return true;
             }
         }
-        return false;
+        return false;*/
+
+        return prioritizedTasks.stream()
+                .filter(t -> task.getId() == null || !t.getId().equals(task.getId()))
+                .anyMatch(t -> task.getStartTime().isBefore(t.getEndTime())
+                        && t.getStartTime().isBefore(task.getEndTime()));
     }
 }
