@@ -77,10 +77,10 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         List<Subtask> subtaskList = restoredTaskManager.getSubtaskList();
         for (Subtask s : subtaskList) {
             isFound = false;
-            if (checkTaskOnEquals(s, subtask) && s.getEpic().getId().equals(subtask.getEpic().getId())) {
+            if (checkTaskOnEquals(s, subtask) && s.getEpicId().equals(subtask.getEpicId())) {
                 isFound = true;
             }
-            if (checkTaskOnEquals(s, secondSubtask) && s.getEpic().getId().equals(secondSubtask.getEpic().getId())) {
+            if (checkTaskOnEquals(s, secondSubtask) && s.getEpicId().equals(secondSubtask.getEpicId())) {
                 isFound = true;
             }
             assertTrue(isFound, "Подзадача " + s.getId() + " не сохранилась в файл");
@@ -92,7 +92,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
             Set<Subtask> subtasksEpic = epic.getSubtasks();
             for (Subtask sE : subtasksE) {
                 for (Subtask sEpic : subtasksEpic) {
-                    if (checkTaskOnEquals(sE, sEpic) && sE.getEpic().getId().equals(sEpic.getEpic().getId())) {
+                    if (checkTaskOnEquals(sE, sEpic) && sE.getEpicId().equals(sEpic.getEpicId())) {
                         isFound = true;
                         break;
                     }
