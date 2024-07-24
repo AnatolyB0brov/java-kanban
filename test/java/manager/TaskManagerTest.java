@@ -66,6 +66,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(task.getName(), tasks.get(0).getName(), "Названия не совпадают.");
         assertEquals(task.getDescription(), tasks.get(0).getDescription(), "Описания не совпадают.");
         assertEquals(task.getStatus(), tasks.get(0).getStatus(), "Статусы не совпадают.");
+        assertEquals(task.getStatus(), tasks.get(0).getStatus(), "Статусы не совпадают.");
     }
 
     @Test
