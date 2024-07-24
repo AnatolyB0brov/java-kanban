@@ -1,7 +1,5 @@
 package task;
 
-import com.google.gson.annotations.Expose;
-
 import java.io.Serializable;
 import java.time.Duration;
 

@@ -174,8 +174,8 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     private Optional<Epic> parseEpic(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         try {
-            Epic Epic = gson.fromJson(body, Epic.class);
-            return Optional.of(Epic);
+            Epic epic = gson.fromJson(body, Epic.class);
+            return Optional.of(epic);
         } catch (Exception e) {
             return Optional.empty();
         }
