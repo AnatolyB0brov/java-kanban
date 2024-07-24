@@ -141,7 +141,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return epic;
     }
 
-    public void save() {
+    public void save() throws ManagerSaveException {
         FileBackedDto fileBackedDto = new FileBackedDto(getTasks(), getSubtasks(), getEpics(), getNextTaskId(),
                 getHistoryManager());
         try (FileOutputStream fileOutputStream = new FileOutputStream(databaseFile);

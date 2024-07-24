@@ -1,15 +1,26 @@
 package task;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task implements Serializable {
+public class Task implements Comparable<Task>, Serializable {
     protected Integer id;
     protected String name;
     protected String description;
     protected Status status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String name, String description, Status status) {
+    public Task(String name, String description, Status status, Duration duration) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+    }
+
+    protected Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -47,7 +58,26 @@ public class Task implements Serializable {
         this.status = status;
     }
 
-    //IDEA подсказала, что можно вообще убрать obj==null
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     @Override
     public final boolean equals(Object obj) {
         if (this == obj) {
@@ -76,5 +106,10 @@ public class Task implements Serializable {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Task task) {
+        return this.startTime.compareTo(task.startTime);
     }
 }

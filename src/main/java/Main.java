@@ -2,20 +2,25 @@ import task.*;
 import manager.TaskManager;
 import manager.Managers;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
-        Task buyBread = new Task("Buy bread", "Go to the store and buy bread", Status.NEW);
-        Task buyMilk = new Task("Buy milk", "Go to the store and buy milk", Status.NEW);
+        Task buyBread = new Task("Buy bread", "Go to the store and buy bread",
+                Status.NEW, Duration.of(60, ChronoUnit.MINUTES));
+        Task buyMilk = new Task("Buy milk", "Go to the store and buy milk",
+                Status.NEW, Duration.of(60, ChronoUnit.MINUTES));
         Epic relocate = new Epic("Relocate", "Relocate in Moscow");
         Epic learnEnglish = new Epic("Learn English", "Learn English language");
         Subtask buyTicket = new Subtask("Buy ticket", "Buy a train ticket to Moscow",
-                Status.IN_PROGRESS, relocate);
+                Status.IN_PROGRESS, Duration.of(60, ChronoUnit.MINUTES), relocate);
         Subtask rentHousing = new Subtask("Rent housing", "Rent housing in Moscow", Status.NEW,
-                relocate);
+                Duration.of(60, ChronoUnit.MINUTES), relocate);
         Subtask englishCourses = new Subtask("English courses", "Sign up for English courses",
-                Status.NEW, learnEnglish);
+                Status.NEW, Duration.of(60, ChronoUnit.MINUTES), learnEnglish);
         taskManager.createTask(buyBread);
         taskManager.createTask(buyMilk);
         taskManager.createSubtask(buyTicket);
