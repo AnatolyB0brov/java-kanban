@@ -15,19 +15,6 @@ public class HttpTaskServer {
 
     private static final int PORT = 8080;
 
-
-    public static void main(String[] args) throws IOException {
-        TaskManager taskManager = Managers.getDefault();
-        createAndStartServer(taskManager);
-        Scanner scanner = new Scanner(System.in);
-        String input = "";
-        while (!Objects.equals(input, "exit")) {
-            System.out.println("Для остановки введите exit");
-            input = scanner.next();
-        }
-        stopServer();
-    }
-
     public static void createAndStartServer(TaskManager taskManager) throws IOException {
         if (httpServer != null) {
             stopServer();
@@ -44,5 +31,17 @@ public class HttpTaskServer {
 
     public static void stopServer() {
         httpServer.stop(0);
+    }
+
+    public static void main(String[] args) throws IOException {
+        TaskManager taskManager = Managers.getDefault();
+        createAndStartServer(taskManager);
+        Scanner scanner = new Scanner(System.in);
+        String input = "";
+        while (!Objects.equals(input, "exit")) {
+            System.out.println("Для остановки введите exit");
+            input = scanner.next();
+        }
+        stopServer();
     }
 }
