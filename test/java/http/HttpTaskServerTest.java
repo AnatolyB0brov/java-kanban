@@ -33,6 +33,7 @@ class HttpTaskServerTest {
     TaskManager taskManager;
     Gson gson;
     final String HOST_URL = "http://localhost:8080/";
+    HttpTaskServer httpTaskServer;
 
     @BeforeEach
     void beforeEach() throws IOException {
@@ -42,12 +43,13 @@ class HttpTaskServerTest {
                 .create();
 
         taskManager = Managers.getDefault();
-        HttpTaskServer.createAndStartServer(taskManager);
+        httpTaskServer = new HttpTaskServer();
+        httpTaskServer.createAndStartServer(taskManager);
     }
 
     @AfterEach
     void afterEach() {
-        HttpTaskServer.stopServer();
+        httpTaskServer.stopServer();
     }
 
     @Test

@@ -11,11 +11,11 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class HttpTaskServer {
-    private static HttpServer httpServer;
+    private HttpServer httpServer;
 
     private static final int PORT = 8080;
 
-    public static void createAndStartServer(TaskManager taskManager) throws IOException {
+    public void createAndStartServer(TaskManager taskManager) throws IOException {
         if (httpServer != null) {
             stopServer();
         }
@@ -29,19 +29,20 @@ public class HttpTaskServer {
         System.out.println("Сервер запущен на " + PORT + " порту.");
     }
 
-    public static void stopServer() {
+    public void stopServer() {
         httpServer.stop(0);
     }
 
     public static void main(String[] args) throws IOException {
         TaskManager taskManager = Managers.getDefault();
-        createAndStartServer(taskManager);
+        HttpTaskServer httpTaskServer = new HttpTaskServer();
+        httpTaskServer.createAndStartServer(taskManager);
         Scanner scanner = new Scanner(System.in);
         String input = "";
         while (!Objects.equals(input, "exit")) {
             System.out.println("Для остановки введите exit");
             input = scanner.next();
         }
-        stopServer();
+        httpTaskServer.stopServer();
     }
 }
